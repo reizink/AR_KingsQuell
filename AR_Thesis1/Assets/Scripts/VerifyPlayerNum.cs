@@ -47,9 +47,9 @@ public class VerifyPlayerNum : MonoBehaviour
 
             C1.isOn = true;
             C2.isOn = true;
-            C3.isOn = true;
-            C4.isOn = true;
-            CharactersSelected = 4;
+            //C3.isOn = true;
+            //C4.isOn = true;
+            //CharactersSelected = 4;
             Debug.Log("All 4 selected");
         }
         else
