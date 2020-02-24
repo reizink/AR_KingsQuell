@@ -1,18 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TacticsMove : MonoBehaviour
 {
+    public bool turn = false;
+
     List<Tile> selectableTiles = new List<Tile>();
     GameObject[] tiles;
 
     Stack<Tile> path = new Stack<Tile>();
     Tile currentTile;
 
+
     public bool moving = false;
-    //public int dieRoll = 5;
-    public int move = 3; //adjust by die
     public float jumpHeight = 2;
     public float moveSpeed = .3f; //2
     public float jumpVelocity = 4.5f;
@@ -27,11 +29,25 @@ public class TacticsMove : MonoBehaviour
     bool movingEdge = false;
     Vector3 jumpTarget;
 
+    RollDie RollScript;
+    public string side = "Side1Spaces";
+    public bool KingAbleE = false, KingAbleW = false;
+    public Tile SideTile;
+
+    public bool SmashSide = false;
+
+    private void Awake()
+    {
+        RollScript = GameObject.Find("RollDieButton").GetComponent<RollDie>();
+    }
+
     protected void Init()
     {
         tiles = GameObject.FindGameObjectsWithTag("Tile");
 
         halfHeight = GetComponent<Collider>().bounds.extents.y;
+
+        TurnManager.AddUnit(this);
     }
 
     public void GetCurrentTile()
@@ -46,12 +62,16 @@ public class TacticsMove : MonoBehaviour
         RaycastHit hit;
         Tile tile = null;
 
-        if(Physics.Raycast(target.transform.position, -Vector3.up, out hit, 1))
+        //Debug.Log(side);
+
+        if (Physics.Raycast(target.transform.position, -transform.up, out hit, 1))
         {
-            tile = hit.collider.GetComponent<Tile>(); ////
-            //Debug.Log(hit.collider);
-            //Debug.DrawRay(transform.position, -Vector3.up, Color.green);
+            tile = hit.collider.GetComponent<Tile>();
         }
+
+        /*if(side == "Side1Spaces" && !turn)
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        */
 
         return tile;
     }
@@ -61,11 +81,11 @@ public class TacticsMove : MonoBehaviour
         foreach(GameObject tile in tiles)
         {
             Tile t = tile.GetComponent<Tile>();
-            t.FindNeighbors(jumpHeight);
+            t.AddAdjacent(t); //all 4 tiles added to adjacencylist
         }
     }
 
-    public void FindSelectableTiles()
+    public void FindSelectableTiles2()
     {
         ComputeAdjacencyLists();
         GetCurrentTile();
@@ -75,27 +95,24 @@ public class TacticsMove : MonoBehaviour
         process.Enqueue(currentTile);
         currentTile.visited = true;
 
-        while (process.Count > 0)
-        {
-            Tile t = process.Dequeue();
+        //set move limit here?
+        process.Enqueue(currentTile.returnAdj1());
+        process.Enqueue(currentTile.returnAdj2());
+        process.Enqueue(currentTile.returnAdj3());
+        process.Enqueue(currentTile.returnAdj4());
 
-            selectableTiles.Add(t);
-            t.selectable = true;
+        selectableTiles.Add(currentTile.returnAdj1());
+        currentTile.returnAdj1().selectable = true;
 
-            if (t.distance < move) //distance, tile in queue
-            {
-                foreach (Tile tile in t.adjacencyList)
-                {
-                    if (!tile.visited)
-                    {
-                        tile.parent = t;
-                        tile.visited = true;
-                        tile.distance = 1 + t.distance;
-                        process.Enqueue(tile);
-                    }
-                }
-            }
-        }
+        selectableTiles.Add(currentTile.returnAdj2());
+        currentTile.returnAdj2().selectable = true;
+
+        selectableTiles.Add(currentTile.returnAdj3());
+        currentTile.returnAdj3().selectable = true;
+
+        selectableTiles.Add(currentTile.returnAdj4());
+        currentTile.returnAdj4().selectable = true;
+
     }
 
     public void MoveToTile(Tile tile)
@@ -110,11 +127,29 @@ public class TacticsMove : MonoBehaviour
             path.Push(next);
             next = next.parent;
         }
+
+        Debug.Log(tile.transform.parent.parent.name);// side at end of turn
+    }
+
+    public string GetSide(Tile tile)
+    {
+        string x;
+
+        x = tile.transform.parent.parent.name;
+        side = x;
+
+        return x;
+    }
+
+    public void FindRotation()
+    {
+        if(side == "Side2Spaces")
+            transform.Rotate(0, 0, 90, Space.Self);
     }
 
     public void Move()
     {
-        if(path.Count > 0)
+        if (path.Count > 0)
         {
             Tile t = path.Peek();
             Vector3 target = t.transform.position;
@@ -122,7 +157,7 @@ public class TacticsMove : MonoBehaviour
             //calculate unit position on tile
             target.y += halfHeight + t.GetComponent<Collider>().bounds.extents.y;
 
-            if(Vector3.Distance(transform.position, target) >= 0.05f)
+            if (Vector3.Distance(transform.position, target) >= 0.05f)
             {
                 bool jump = transform.position.y != target.y;
 
@@ -145,11 +180,34 @@ public class TacticsMove : MonoBehaviour
                 transform.position = target;
                 path.Pop();
             }
+
+            Debug.Log("Target: " + target + "  More moves: " + RollScript.EndRoll);
         }
         else
         {
             RemoveSelectableTiles();
-            moving = false;
+            RollScript.EndRoll--;
+
+            if(RollScript.EndRoll <= 0)
+            {
+                moving = false;
+            }
+
+            if (side != GetSide(SideTile))
+            {
+                Debug.Log("SideChanged"); //rotate & move player in script
+                FindRotation();
+            }
+
+            if(SmashSide == true)
+            {
+                Debug.Log("Smash a Side");
+            }
+
+            if (moving == false && SmashSide == false) //multiple moves//////////////////////
+                TurnManager.EndTurn();
+            else if(moving == true && SmashSide == false)
+                Move();
         }
     }
 
@@ -225,7 +283,7 @@ public class TacticsMove : MonoBehaviour
 
             velocity.y = jumpVelocity * (0.5f + difference / 2.0f);
         }
-    }
+    } 
 
     void FallDownward(Vector3 target)
     {
@@ -234,6 +292,8 @@ public class TacticsMove : MonoBehaviour
         if(transform.position.y <= target.y)
         {
             fallingDown = false;
+            jumpingHigh = false;
+            movingEdge = false;
 
             Vector3 p = transform.position;
             p.y = target.y;
@@ -265,8 +325,19 @@ public class TacticsMove : MonoBehaviour
             movingEdge = false;
             fallingDown = true;
 
-            velocity /= 3.0f;
+            velocity /= 5.0f;
             velocity.y = 1.5f;
         }
+    }
+
+    public void BeginTurn()
+    {
+        turn = true;
+        RollScript.Rolled = false;
+    }
+
+    public void EndTurn()
+    {
+        turn = false;
     }
 }

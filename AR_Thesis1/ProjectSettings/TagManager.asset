@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Tile
+  - ElfPlayer
+  - WizardPlayer
+  - Rotator
   layers:
   - Default
   - TransparentFX
