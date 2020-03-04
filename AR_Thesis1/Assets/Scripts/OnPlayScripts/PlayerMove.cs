@@ -65,10 +65,22 @@ public class PlayerMove : TacticsMove
         }
         else
         {
-            //if(PausePanel.activeInHierarchy == false) //needed?
+            if(SmashSide == true)
+            {
+                Debug.Log("Smash in Update Function");
+            }
+            else
+            {
                 Move();
+                FindRotation(transform.gameObject);
+            }
 
-            foreach (GameObject other in Others)
+            //Move();
+            //Debug.Log("Find Side Tag: " + CurTile.transform.parent.parent.tag);
+
+            //FindRotation(transform.gameObject);
+
+            foreach (GameObject other in Others) //test if opponent squashed
             {
                 if (tag == "WizardPlayer" && transform.position == other.transform.position)
                 {
@@ -77,7 +89,7 @@ public class PlayerMove : TacticsMove
                 }
             }
 
-            foreach (GameObject enemy in Enemies)
+            foreach (GameObject enemy in Enemies) //test if opponent squashed
             {
                 if (tag == "ElfPlayer" && transform.position == enemy.transform.position)
                 {
@@ -85,9 +97,14 @@ public class PlayerMove : TacticsMove
                     Destroy(enemy);
                 }
             }
+
+            if(turn && SmashSide == true)
+            {
+                Debug.Log("Select Side");
+            }
         }
 
-        if(Others == null || Others.Length == 0)
+        if(Others == null || Others.Length == 0) //Wizard winner end screen
         {
             Debug.Log("The Wizards have won!");
             turn = false;
@@ -97,7 +114,7 @@ public class PlayerMove : TacticsMove
             ElvesLeft.text = "0";
             WizardsLeft.text = Enemies.Length.ToString();
         }
-        if (Enemies == null || Enemies.Length == 0)
+        if (Enemies == null || Enemies.Length == 0) //Elf winner end screen
         {
             Debug.Log("The Elves have won!");
             turn = false;
@@ -129,11 +146,6 @@ public class PlayerMove : TacticsMove
                     }
 
                     SideTile = t;
-                    //if(side != GetSide(t))
-                    {
-                        //Debug.Log("SideChanged"); //rotate & move player in script
-                        //FindRotation();
-                    }
                 }
             }
         }

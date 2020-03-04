@@ -51,6 +51,24 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    /*public static void IsKing()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.collider.tag == "Rotator")
+                {
+                    EndTurn();
+                }
+            }
+        }
+    }*/
+
     public static void StartTurn()
     {
         SelectCharacter();

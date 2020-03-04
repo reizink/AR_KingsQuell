@@ -5,7 +5,7 @@ using UnityEngine;
 public class KingCondition : TacticsMove
 {
     public GameObject RotateOptions;
-    public GameObject Board;
+    //public GameObject Board;
 
     // Start is called before the first frame update
     void Awake()
@@ -45,9 +45,6 @@ public class KingCondition : TacticsMove
                         if (r.name == "RotateS2")
                         {
                             Board.transform.Rotate(90, 0, 0);
-                            Vector3 CurPos = Board.transform.position;
-                            Board.transform.position = Vector3.Lerp(CurPos, new Vector3(0f,0f,0f), Time.deltaTime);
-                            //Board.transform.position = Vector3.Lerp(Board.transform.position, CurPos, Time.deltaTime);
                         }
                         else if (r.name == "RotateS4")
                             Board.transform.Rotate(-90, 0, 0);
@@ -77,7 +74,7 @@ public class KingCondition : TacticsMove
 		if (other.gameObject.tag == "ElfPlayer")
 			KingAbleE = true;
 		if (other.gameObject.tag == "WizardPlayer")
-			KingAbleE = true;
+			KingAbleW = true;
 		
         RotateOptions.SetActive(false);
     }
