@@ -17,7 +17,7 @@ public class TacticsMove : MonoBehaviour
     public bool moving = false;
     public float jumpHeight = 2;
     public float moveSpeed = .3f; //2
-    public float jumpVelocity = 1.5f;
+    public float jumpVelocity = 2.2f;
 
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
@@ -32,11 +32,14 @@ public class TacticsMove : MonoBehaviour
     RollDie RollScript;
     public string side = "Side1Spaces";
     public bool KingAbleE = false, KingAbleW = false;
-    public Tile SideTile;
-    public GameObject CurTile; //, CurTileW;
+    //public Tile SideTile;
+    public GameObject CurTile; 
 
     public bool SmashSide = false;
+    //public bool isFalseK = false; //try to stop false kings?
     public GameObject Board;
+    public GameObject RotateOptions;
+    public GameObject SelectedPiece = null;
 
     private void Awake()
     {
@@ -63,19 +66,12 @@ public class TacticsMove : MonoBehaviour
         RaycastHit hit;
         Tile tile = null;
 
-        //Debug.Log(side);
-
         if (Physics.Raycast(target.transform.position, -transform.up, out hit, 1))
         {
             tile = hit.collider.GetComponent<Tile>();
 
-
             CurTile = tile.gameObject; //current tile gameObject
-            //CurTileW = tile.gameObject;
         }
-
-        //rotation check?
-        //FindRotation(CurTile); // ///////////////////////////////////////////////
 
         return tile;
     }
@@ -148,7 +144,7 @@ public class TacticsMove : MonoBehaviour
 
     public void FindRotation(GameObject other) //adjust by board rotation too?
     {
-        Debug.Log("Current tile: " + CurTile);
+        //Debug.Log("Current tile: " + CurTile);
 
         if (CurTile.transform.parent.parent.tag == "Side1")
             other.transform.eulerAngles = new Vector3(0 + Board.transform.position.x, 0 + Board.transform.position.y, 0 + Board.transform.position.z);
@@ -173,33 +169,35 @@ public class TacticsMove : MonoBehaviour
             Vector3 target = t.transform.position;
 
             CurTile = t.gameObject;
-            //calculate unit position on tile
-            Debug.Log("Side for Editing: " + GetSide(t));
 
-            if (GetSide(t) == "Side1Spaces")
+            //calculate unit position on tile
+            //Debug.Log("Side for Editing: " + GetSide(t)); //GetSide tag = x
+            string x = t.transform.parent.parent.tag;
+
+            if (x == "Side1")
             {
                 target.y += halfHeight + t.GetComponent<Collider>().bounds.extents.y;
             }
-            else if (GetSide(t) == "Side2Spaces")
+            else if (x == "Side2")
             {
                 target.z += halfHeight + t.GetComponent<Collider>().bounds.extents.z;
                 target.y -= .01f;
             }
-            else if (GetSide(t) == "Side3Spaces")
+            else if (x == "Side3")
             {
                 target.y -= halfHeight + t.GetComponent<Collider>().bounds.extents.y;
             }
-            else if (GetSide(t) == "Side4Spaces")
+            else if (x == "Side4")
             {
                 target.z -= halfHeight + t.GetComponent<Collider>().bounds.extents.z;
                 target.y -= .01f;
             }
-            else if (GetSide(t) == "Side5Spaces")
+            else if (x == "Side5")
             {
                 target.x += halfHeight + t.GetComponent<Collider>().bounds.extents.x;
                 target.y -= .01f;
             }
-            else if (GetSide(t) == "Side6Spaces")
+            else if (x == "Side6")
             {
                 target.x -= halfHeight + t.GetComponent<Collider>().bounds.extents.x;
                 target.y -= .01f;
@@ -229,7 +227,11 @@ public class TacticsMove : MonoBehaviour
                 path.Pop();
             }
 
-            //Debug.Log("Target: " + target + "  More moves: " + RollScript.EndRoll);
+            if(transform.position.y <= -2f)
+            {
+                transform.position = target;
+                path.Pop();
+            }
         }
         else
         {
@@ -241,8 +243,6 @@ public class TacticsMove : MonoBehaviour
             {
                 Debug.Log("Smash a Side");
             }
-
-            //StartCoroutine(WaitForClick());
 
             if (RollScript.EndRoll <= 0) //end turn if roll over
                 TurnManager.EndTurn(); //IsKing to EndTurn()
