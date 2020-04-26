@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ARfoundationSettings.unity
     guid: 280a8ee718e5e4e5bb4f6c9cb6341596
+  - enabled: 1
+    path: Assets/Scenes/PlayScene.unity
+    guid: 77cc1ee324fa840afab3a2ade2d39e0c
   m_configObjects: {}

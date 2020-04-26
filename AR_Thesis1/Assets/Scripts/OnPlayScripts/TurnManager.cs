@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class TurnManager : TacticsMove
 {
     static Dictionary<string, List<TacticsMove>> units = new Dictionary<string, List<TacticsMove>>();
     static Queue<string> turnKey = new Queue<string>(); //who's turn it is
     static Queue<TacticsMove> turnTeam = new Queue<TacticsMove>();
 
-    static TacticsMove selectedTurn = null; //
+    //static TacticsMove selectedTurn = null; //
 
     void Update()
     {
@@ -16,22 +16,13 @@ public class TurnManager : MonoBehaviour
         {
             InitTeamTurnQueue();
         }
-        /*if(selectedTurn == null)
+        //if (SelectedPiece != null && turnTeam.Count > 1)
         {
-            SelectCharacter();
+            //StartTurn(SelectedPiece);
         }
-
-        Debug.Log(selectedTurn);*/
-
-        /*if(selectedTurn != null)
-        {
-            turnTeam.Clear();
-            turnTeam.Enqueue(selectedTurn);
-            //StartTurn();
-        }*/
     }
 
-    static void InitTeamTurnQueue()
+    static void InitTeamTurnQueue() //static
     {
         List<TacticsMove> teamList = units[turnKey.Peek()];
         //Debug.Log("teamList output: " + turnKey.Peek());
@@ -40,67 +31,73 @@ public class TurnManager : MonoBehaviour
         {
             turnTeam.Enqueue(unit);
         }
-        //SelectCharacter(); //
 
-        StartTurn();
-    }
-
-    public static void SelectCharacter()
-    {
-        if (Input.GetMouseButtonUp(0))
+        //if(SelectedPiece != null)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                //if (turnTeam.Contains(hit.collider.GetComponent<TacticsMove>())) //team contains player
-                {
-                    //selectedTurn = hit.collider.GetComponent<TacticsMove>();
-                    //Debug.Log("G = " + selectedTurn);
-                }
-
-                if ((hit.collider.tag == "ElfPlayer" && turnKey.Peek() == "ElfPlayer") || (hit.collider.tag == "WizardPlayer" && turnKey.Peek() == "WizardPlayer"))
-                {
-                    selectedTurn = hit.collider.GetComponent<TacticsMove>();
-                    //Debug.Log("G = " + selectedTurn);
-
-                    //turnTeam.Clear();
-                    //turnTeam.Enqueue(selectedTurn);
-                }
-            }
+            //StartTurn(SelectedPiece);
         }
-
-        //selectedTurn.BeginTurn();
+        //SelectCharacter(); //
+        //else
+            StartTurn();
     }
 
-    public static void StartTurn()
+    public void SelectCharacter()
+    {
+        //(hit.collider.tag == "ElfPlayer" && turnKey.Peek() == "ElfPlayer") || (hit.collider.tag == "WizardPlayer" && turnKey.Peek() == "WizardPlayer"))
+
+        TacticsMove x = SelectedPiece.GetComponent<TacticsMove>();
+
+        //turnTeam.Clear();
+        //turnTeam.Enqueue(x);
+        //.BeginTurn();
+    }
+
+    public static void StartTurn() //static
     {
         if(turnTeam.Count > 0)
         {
             turnTeam.Peek().BeginTurn();
-            //selectedTurn.BeginTurn();
+            //SelectCharacter();
+
+            Debug.Log(" turnTeam list: " + turnTeam.Peek() + ", " + turnTeam.Count);
+
         }
+        //SelectCharacter();
         //else team empty
 
         //Debug.Log("Turnkey: " + turnKey.Peek());
         //Debug.Log("TurnTeam: " + turnTeam.Peek());
     }
 
-    public static void EndTurn()
+    public static void StartTurn(GameObject x)
+    {
+        TacticsMove y = x.GetComponent<TacticsMove>();
+        Debug.Log("StartTurn for piece: " + x);
+
+        if (turnTeam.Count > 0)
+        {
+            //turnTeam.Clear();
+            //turnTeam.Enqueue(y);
+
+            turnTeam.Peek().BeginTurn();
+            //y.BeginTurn();
+        }
+        //Debug.Log("Turnkey: " + turnKey.Peek());
+        //Debug.Log("TurnTeam: " + turnTeam.Peek());
+    }
+
+    public static void EndTurn() //static
     {
         TacticsMove unit = turnTeam.Dequeue(); //remove item
         unit.EndTurn();
-        //selectedTurn.EndTurn();
-        //selectedTurn = null;
+        //SelectedPiece = null;
 
-        if(turnTeam.Count > 0)
+        if (turnTeam.Count > 0) //other team members turn
         {
             StartTurn();
         }
         else
-        {
+        {//switch teams each time
             string team = turnKey.Dequeue(); //next Team
             turnKey.Enqueue(team); //add team to end of queue
             InitTeamTurnQueue();
@@ -128,4 +125,6 @@ public class TurnManager : MonoBehaviour
 
         list.Add(unit);
     }
+
+    //
 }

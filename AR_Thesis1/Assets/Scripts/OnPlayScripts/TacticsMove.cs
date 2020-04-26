@@ -30,9 +30,9 @@ public class TacticsMove : MonoBehaviour
     Vector3 jumpTarget;
 
     RollDie RollScript;
+    TogglePiece ToggleScript;
     public string side = "Side1Spaces";
     public bool KingAbleE = false, KingAbleW = false;
-    //public Tile SideTile;
     public GameObject CurTile; 
 
     public bool SmashSide = false;
@@ -40,10 +40,13 @@ public class TacticsMove : MonoBehaviour
     public GameObject Board;
     public GameObject RotateOptions;
     public GameObject SelectedPiece = null;
+    public bool IsPieceSelected = false;
+    public bool TakenTurn = false; //false = W, True = Elf
 
     private void Awake()
     {
         RollScript = GameObject.Find("RollDieButton").GetComponent<RollDie>();
+        //ToggleScript = GameObject.Find("PurpleToggles").GetComponent<TogglePiece>(); //
     }
 
     protected void Init()
@@ -130,6 +133,8 @@ public class TacticsMove : MonoBehaviour
 
         //.Log(tile.transform.parent.parent.name);// side at end of turn
         RollScript.EndRoll--; //# of moves used
+
+        Debug.Log("Moves left: " + RollScript.EndRoll);
     }
 
     public string GetSide(Tile tile)
@@ -235,8 +240,7 @@ public class TacticsMove : MonoBehaviour
         }
         else
         {
-            RemoveSelectableTiles();
-            
+            RemoveSelectableTiles(); 
             moving = false;
 
             if(SmashSide == true)
@@ -244,8 +248,11 @@ public class TacticsMove : MonoBehaviour
                 Debug.Log("Smash a Side");
             }
 
-            if (RollScript.EndRoll <= 0) //end turn if roll over
-                TurnManager.EndTurn(); //IsKing to EndTurn()
+            if (RollScript.EndRoll <= 0)
+            { //end turn if roll over
+                TurnManager.EndTurn(); //IsKing to EndTurn() //TurnManager
+                Debug.Log("Turn ended, TacticsMove");
+            }
         }
     }
 
@@ -377,5 +384,10 @@ public class TacticsMove : MonoBehaviour
     public void EndTurn()
     {
         turn = false;
+
+        /*if (TakenTurn == true)
+            TakenTurn = false;
+        else if (TakenTurn == false)
+            TakenTurn = true;*/
     }
 }

@@ -15,13 +15,11 @@ public class TapToPlaceObject : MonoBehaviour {
     private bool placementPoseIsValid;
     private bool IsPlaced = false;
 
-	// Use this for initialization
 	void Start ()
     {
         arOrigin = FindObjectOfType<ARSessionOrigin>();
 	}
 	
-	// Update is called once per frame
 	void Update ()
     {
         UpdatePlacementPose();

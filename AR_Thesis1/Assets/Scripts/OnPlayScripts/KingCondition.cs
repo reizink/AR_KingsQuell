@@ -35,7 +35,7 @@ public class KingCondition : TacticsMove
             //check that player didn't start in King
 
             RotateOptions.SetActive(true);
-            SideColliders.SetActive(true);
+            //SideColliders.SetActive(true);
             SmashSide = true;
             //rotate cube
 
@@ -74,7 +74,7 @@ public class KingCondition : TacticsMove
                         SmashSide = false;
 
                         //rename sides so bottom is tag Side3
-                        SideColliders.SetActive(false);
+                        SideColliders.SetActive(true);
 
                         //destroy
                         checkForDestroyed();
@@ -84,7 +84,7 @@ public class KingCondition : TacticsMove
                     } //end if collider is rotator
                 }
 
-                SideColliders.SetActive(false);
+                //SideColliders.SetActive(false);
                 RotateOptions.SetActive(false);
                 DestroyBase.SetActive(false);
 
@@ -105,6 +105,7 @@ public class KingCondition : TacticsMove
                 }
             }
         }
+        SideColliders.SetActive(false);
     }
 
     private void OnTriggerExit(Collider other)
@@ -129,7 +130,7 @@ public class KingCondition : TacticsMove
 
     private void checkForDestroyed()
     {
-        //delete characters on bottom 
+        //delete characters on bottom after smash 
         GameObject[] Elves, Wizards;
         Elves = GameObject.FindGameObjectsWithTag("ElfPlayer");
         Wizards = GameObject.FindGameObjectsWithTag("WizardPlayer");
@@ -174,44 +175,5 @@ public class KingCondition : TacticsMove
                 }
             }
         }
-
-        /*foreach (GameObject elf in Elves) //test if opponent squashed
-        {
-            RaycastHit hit2;
-            GameObject tile = null;
-
-            Debug.DrawRay(transform.position, -transform.up);//
-
-            if (Physics.Raycast(elf.transform.position, -elf.transform.up, out hit2, 1))
-            {
-                tile = hit2.collider.gameObject; // GetComponent<Tile>();
-
-                Debug.Log("******* " + tile);
-                Debug.Log("********* " + tile.transform.parent.parent.tag);
-                if (tile.transform.parent.parent.tag == "Side3")
-                {
-                    Destroy(elf);
-                    Debug.Log(elf + " was destroyed.");
-                }
-            }
-        }*/
-        /*foreach (GameObject wizard in Wizards) //test if opponent squashed
-        {
-            RaycastHit hit2;
-            GameObject tile = null;
-
-            if (Physics.Raycast(wizard.transform.position, -wizard.transform.up, out hit2, 1))
-            {
-                tile = hit2.collider.gameObject; // GetComponent<Tile>();
-
-                Debug.Log("******* " + tile);
-                Debug.Log("********* " + tile.transform.parent.parent.tag);
-                if (wizard.transform.parent.parent.tag == "Side3")
-                {
-                    Destroy(wizard);
-                    Debug.Log(wizard + " was destroyed.");
-                }
-            }
-        }*/
     }
 }

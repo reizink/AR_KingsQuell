@@ -12,6 +12,8 @@ public class PlayerMove : TacticsMove
     public Text Winner;
     public Text ElvesLeft, WizardsLeft;
 
+    public GameObject PToggles, GToggles; //for selected player
+
 	// Start is called before the first frame update
 	void Start()
     {
@@ -22,6 +24,12 @@ public class PlayerMove : TacticsMove
         rollScript = GameObject.Find("Canvas").GetComponentInChildren<RollDie>();
     }
 
+    public void ToggleIsClicked(GameObject x)
+    {
+        SelectedPiece = x;
+        IsPieceSelected = true;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -30,34 +38,44 @@ public class PlayerMove : TacticsMove
         Others = GameObject.FindGameObjectsWithTag("ElfPlayer");
         Enemies = GameObject.FindGameObjectsWithTag("WizardPlayer");
 
-            if (!turn)
-            {
-                return;
-            }
+        if (!turn) //|| !IsPieceSelected)
+        {
+            return;
+        }
 
-            //label Turn
-            if (turn && tag == "WizardPlayer" && rollScript.Rolled == false)
-            {
-                rollScript.PlayerRoll.text = "Wizard's Turn";
-                rollScript.PlayerRoll.color = Color.magenta;
-                PausePanel.SetActive(true);
-                rollScript.RollButton.SetActive(true);
-            }
-            else if (turn && tag == "ElfPlayer" && rollScript.Rolled == false)
-            {
-                rollScript.PlayerRoll.text = "Elf's Turn";
-                rollScript.PlayerRoll.color = Color.green;
-                PausePanel.SetActive(true);
-                rollScript.RollButton.SetActive(true);
-            }
-            else
-            {
-                rollScript.PlayerRoll.text = "";
-                PausePanel.SetActive(false);
-                rollScript.RollButton.SetActive(false);
-            }
+        //label Turn
+        if (turn && tag == "WizardPlayer" && (rollScript.Rolled == false))// || IsPieceSelected == false))
+        {
+            rollScript.PlayerRoll.text = "Wizard's Turn";
+            rollScript.PlayerRoll.color = Color.magenta;
+            PausePanel.SetActive(true);
+            rollScript.RollButton.SetActive(true);
+            PToggles.SetActive(true);
+            GToggles.SetActive(false);
+        }
+        else if (turn && tag == "ElfPlayer" && (rollScript.Rolled == false))// !&&?, || IsPieceSelected == false))
+        {
+            rollScript.PlayerRoll.text = "Elf's Turn";
+            rollScript.PlayerRoll.color = Color.green;
+            PausePanel.SetActive(true);
+            rollScript.RollButton.SetActive(true);
+            GToggles.SetActive(true);
+            PToggles.SetActive(false);
+        }
+        else
+        {
+            rollScript.PlayerRoll.text = "";
+            PausePanel.SetActive(false);
+            rollScript.RollButton.SetActive(false);
+            //GToggles block toggles from click ////////
+        }
 
-        if (rollScript.Rolled == true && RotateOptions.activeInHierarchy == false)
+        if (rollScript.Rolled == true)
+        {
+            rollScript.RollButton.SetActive(false);
+        }
+
+        if (rollScript.Rolled == true && RotateOptions.activeInHierarchy == false)// && IsPieceSelected == true)
         {
             if (!moving)
             {
@@ -132,8 +150,6 @@ public class PlayerMove : TacticsMove
                     {
                         MoveToTile(t);
                     }
-
-                    //SideTile = t;
                 }
             }
         }
